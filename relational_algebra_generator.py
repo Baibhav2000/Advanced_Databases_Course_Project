@@ -63,3 +63,10 @@ def generate_relational_algebra(sql_query):
         relational_algebra = f"{rel_alg_operators['SELECT']}({''.join(select_clause_tokens)}){relational_algebra}"
     
     return relational_algebra
+
+def generate_equivalent_expressions(relational_algebra):
+    pass
+
+__all__ = [
+    'generate_relational_algebra',
+]

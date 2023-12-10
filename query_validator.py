@@ -36,3 +36,4 @@ def validate_query(sql_query):
     else:
         return validate_select_clause(select_clause_tokens) and validate_from_clause(from_clause_tokens)
     
+__all__ = ['validate_query']

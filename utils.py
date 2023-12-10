@@ -229,3 +229,12 @@ def tokenize_query(sql_query):
     # If the token is a keyword, change it to uppercase
     tokens = list(map(lambda x: x.upper() if x.upper() in keywords else x,tokens))
     return tokens
+
+__all__ = [
+    'tokenize_query',
+    'extract_from_clause',
+    'extract_where_clause',
+    'validate_select_clause', 
+    'validate_from_clause', 
+    'validate_where_clause'
+]
