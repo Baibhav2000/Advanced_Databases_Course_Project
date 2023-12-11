@@ -4,6 +4,7 @@ from utils import (
                 extract_where_clause,
                 extract_from_clause
             )
+import re
 
 def generate_relational_algebra(sql_query):
     
@@ -60,13 +61,33 @@ def generate_relational_algebra(sql_query):
         relational_algebra = f"{rel_alg_operators['WHERE']}({where_condition})({relational_algebra})"
     
     if select_clause_tokens != ['*']:
-        relational_algebra = f"{rel_alg_operators['SELECT']}({''.join(select_clause_tokens)}){relational_algebra}"
+        relational_algebra = f"{rel_alg_operators['SELECT']}({''.join(select_clause_tokens)})({relational_algebra})"
     
     return relational_algebra
 
 def generate_equivalent_expressions(relational_algebra):
-    pass
+    exp_list = [relational_algebra]
+    
+    # Cascading of σ operator 
+    for exp in exp_list:
+        match = re.search(r'σ\((.*⋀.+.*)\)\((\w+)\)', exp)
+        
+        if match:
+            conditions = match.group(1).split('⋀')
+            
+            conditions = [f'σ({cond})' for cond in conditions]
+            
+            new_exp = match.group(2)
+            for cond in conditions[::-1]:
+                new_exp = cond + f"({new_exp})"
+
+            new_exp = exp.replace(match.group(0), new_exp)
+            
+            exp_list.append(new_exp)
+            
+    return exp_list
 
 __all__ = [
     'generate_relational_algebra',
+    'generate_equivalent_expressions'
 ]
