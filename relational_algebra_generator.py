@@ -120,6 +120,14 @@ def generate_equivalent_expressions(relational_algebra):
             new_exp = exp.replace(match.group(0),new_exp)
             exp_list += [new_exp] if new_exp not in exp_list else []
 
+    # Convert σ(Θ1)(r⨝(Θ2)s) to r⨝(Θ1⋀Θ2)s
+    for exp in exp_list:
+        match = re.search(r'σ\((.+)\)\(([A-Za-z_]+)⨝\((.+)\)([A-Za-z_]+)\)', exp)
+        if match:
+            new_exp = f"{match.group(2)}⨝({match.group(1)}⋀{match.group(3)}){match.group(4)}"
+            
+            exp_list += [new_exp] if new_exp not in exp_list else []
+    
     return exp_list
 
 __all__ = [
