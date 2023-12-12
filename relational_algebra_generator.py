@@ -5,6 +5,7 @@ from utils import (
                 extract_from_clause
             )
 import re
+from itertools import permutations
 
 def generate_relational_algebra(sql_query):
     
@@ -84,7 +85,20 @@ def generate_equivalent_expressions(relational_algebra):
             new_exp = exp.replace(match.group(0), new_exp)
             
             exp_list.append(new_exp)
+    
+    # Commutative property of ⨝ operator
+    for exp in exp_list:
+        match = re.search(r'([A-Za-z]+)([⨝⟕⟖⟗]\(.*\))([A-Za-z]+)',exp)
+        
+        if match:
+            perms = list(permutations([match.group(1), match.group(3)]))
             
+            for perm in perms:
+                new_exp = match.group(2).join(perm)
+                new_exp = exp.replace(match.group(0),new_exp)
+                
+                exp_list += [new_exp] if new_exp not in exp_list else []
+                
     return exp_list
 
 __all__ = [
