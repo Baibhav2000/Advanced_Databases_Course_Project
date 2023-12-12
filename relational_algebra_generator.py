@@ -101,7 +101,7 @@ def generate_equivalent_expressions(relational_algebra):
     
     # Commutative property of × operator
     for exp in exp_list:
-        match = re.search(r'([A-Za-z_]+) × ([A-Za-z_]+) (× ([A-Za-z_]+))*',exp)
+        match = re.search(r'([A-Za-z_]+) × ([A-Za-z_]+)( × ([A-Za-z_]+))*',exp)
         if match:
             table_names = match.group(0).split(' × ')
             perms = list(permutations(table_names))
@@ -111,7 +111,15 @@ def generate_equivalent_expressions(relational_algebra):
                 new_exp = exp.replace(match.group(0),new_exp)
                 
                 exp_list += [new_exp] if new_exp not in exp_list else []
-                
+    
+    # Convert σ(Θ)(r × s) to r⨝(Θ)s
+    for exp in exp_list:
+        match = re.search(r'σ\((.+)\)\(([A-Za-z_]+) × ([A-Za-z_]+)\)',exp)
+        if match:
+            new_exp=f'⨝({match.group(1)})'.join([match.group(2),match.group(3)])
+            new_exp = exp.replace(match.group(0),new_exp)
+            exp_list += [new_exp] if new_exp not in exp_list else []
+
     return exp_list
 
 __all__ = [
