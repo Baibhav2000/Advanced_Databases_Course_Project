@@ -88,13 +88,26 @@ def generate_equivalent_expressions(relational_algebra):
     
     # Commutative property of ⨝ operator
     for exp in exp_list:
-        match = re.search(r'([A-Za-z]+)([⨝⟕⟖⟗]\(.*\))([A-Za-z]+)',exp)
+        match = re.search(r'([A-Za-z_]+)([⨝⟕⟖⟗]\(.*\))([A-Za-z_]+)',exp)
         
         if match:
             perms = list(permutations([match.group(1), match.group(3)]))
             
             for perm in perms:
                 new_exp = match.group(2).join(perm)
+                new_exp = exp.replace(match.group(0),new_exp)
+                
+                exp_list += [new_exp] if new_exp not in exp_list else []
+    
+    # Commutative property of × operator
+    for exp in exp_list:
+        match = re.search(r'([A-Za-z_]+) × ([A-Za-z_]+) (× ([A-Za-z_]+))*',exp)
+        if match:
+            table_names = match.group(0).split(' × ')
+            perms = list(permutations(table_names))
+            
+            for perm in perms:
+                new_exp = ' × '.join(perm)
                 new_exp = exp.replace(match.group(0),new_exp)
                 
                 exp_list += [new_exp] if new_exp not in exp_list else []
