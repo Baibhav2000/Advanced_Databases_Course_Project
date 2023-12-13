@@ -167,6 +167,20 @@ def generate_equivalent_expressions(relational_algebra):
                 
                 exp_list += [new_exp] if new_exp not in exp_list else []
             
+    #Distribution of ∏ operator over ∪ operator
+    for exp in exp_list:
+        match = re.search(r'∏\((.+)\)\((.+)\)\s∪\s∏\((.+)\)\((.+)\)',exp)
+        
+        if match:
+            attr1 = match.group(1).split(',')
+            attr2 = match.group(3).split(',')
+            
+            if set(attr1) == set(attr2):
+                new_exp = f"∏({','.join(attr1)})({match.group(2)} ∪ {match.group(4)})"
+                new_exp = exp.replace(match.group(0),new_exp)
+                
+                exp_list += [new_exp] if new_exp not in exp_list else []
+                
     return exp_list
 
 __all__ = [

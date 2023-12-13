@@ -15,7 +15,7 @@ keywords = [
             'ON',
             'EXCEPT',
             'UNION',
-            'INTERSECTION'
+            'INTERSECT'
         ]
 
 relational_operators = ['<', '>', '=', '!=', '>=', '<=']
