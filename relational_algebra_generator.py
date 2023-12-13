@@ -88,7 +88,7 @@ def generate_relational_algebra(sql_query):
     for tokens in sub_query_tokens:
         relational_algebra += generate_sub_expression(tokens)
         if set_operators != []:
-            relational_algebra += set_operators.pop(0)
+            relational_algebra += f' {set_operators.pop(0)} '
 
     return relational_algebra
 
@@ -154,6 +154,19 @@ def generate_equivalent_expressions(relational_algebra):
             
             exp_list += [new_exp] if new_exp not in exp_list else []
     
+    # Commutative property of ∪ and ∩ Operator
+    for exp in exp_list:
+        match = re.search(r'.+ ([∪∩]) .+',exp)
+        if match:
+            sub_exp = re.split(r' [∪∩] ',exp)
+            perms = list(permutations(sub_exp))
+            
+            for perm in perms:
+                new_exp = f' {match.group(1)} '.join(perm)
+                new_exp = exp.replace(match.group(0),new_exp)
+                
+                exp_list += [new_exp] if new_exp not in exp_list else []
+            
     return exp_list
 
 __all__ = [
