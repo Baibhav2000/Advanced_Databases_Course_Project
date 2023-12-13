@@ -112,6 +112,20 @@ def generate_equivalent_expressions(relational_algebra):
             
             exp_list.append(new_exp)
     
+    # Commutative property of cascading of σ operation
+    for exp in exp_list:
+        match = re.search(r'σ\(.+\)(\(σ\(.+\)\()+',exp)
+        if match:
+            
+            conditions = [cond for cond in re.split(r'σ\(|\)\(', match.group(0)) if cond != '']
+            perms = list(permutations(conditions))
+            
+            for perm in perms:
+                new_exp = 'σ('+')(σ('.join(perm)+')('
+                new_exp = exp.replace(match.group(0),new_exp)
+                
+                exp_list += [new_exp] if new_exp not in exp_list else []    
+            
     # Commutative property of ⨝ operator
     for exp in exp_list:
         match = re.search(r'([A-Za-z_]+)([⨝⟕⟖⟗]\(.*\))([A-Za-z_]+)',exp)
