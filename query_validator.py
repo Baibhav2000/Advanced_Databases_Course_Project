@@ -6,9 +6,9 @@ from utils import (
                     validate_from_clause, 
                     validate_where_clause
                 )
-
-def validate_query(sql_query):
-    sql_tokens = tokenize_query(sql_query)
+import re
+def validate_sub_query(sql_tokens):
+    
     
     # An SQL query must have a SELECT and a FROM clause
     if 'SELECT' not in sql_tokens or 'FROM' not in sql_tokens:
@@ -35,5 +35,37 @@ def validate_query(sql_query):
                 and validate_from_clause(from_clause_tokens) and validate_where_clause(where_clause_tokens))
     else:
         return validate_select_clause(select_clause_tokens) and validate_from_clause(from_clause_tokens)
+
+def validate_query(sql_query):
+    sql_tokens = tokenize_query(sql_query)
+    
+    sub_query_tokens = []
+    
+    # Split the query based on set operators 
+    # i.e., union, intersection, set difference
+    sub_query_token = []
+    
+    for token in sql_tokens:
+        if token not in ['EXCEPT','INTERSECT','UNION']:
+            sub_query_token.append(token)
+        else:
+            sub_query_tokens.append(sub_query_token)
+            sub_query_token = []
+            
+    sub_query_tokens.append(sub_query_token)
+    
+    # Set operator must have two operands
+    if [] in sub_query_tokens:
+        return False
+    
+    # There may not be any set operators.
+    if len(sub_query_tokens) == 1:
+        return validate_sub_query(sql_tokens)
+    
+    sub_query_validation_results = []
+    for tokens in sub_query_tokens:
+        sub_query_validation_results += [validate_sub_query(tokens)]
+    
+    return all(sub_query_validation_results)
     
 __all__ = ['validate_query']

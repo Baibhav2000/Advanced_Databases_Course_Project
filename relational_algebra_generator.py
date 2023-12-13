@@ -7,10 +7,7 @@ from utils import (
 import re
 from itertools import permutations
 
-def generate_relational_algebra(sql_query):
-    
-    sql_tokens = tokenize_query(sql_query)
-    
+def generate_sub_expression(sql_tokens):
     where_keyword_pos = len(sql_tokens)
     where_clause_tokens = []
     
@@ -64,6 +61,35 @@ def generate_relational_algebra(sql_query):
     if select_clause_tokens != ['*']:
         relational_algebra = f"{rel_alg_operators['SELECT']}({''.join(select_clause_tokens)})({relational_algebra})"
     
+    return relational_algebra
+
+def generate_relational_algebra(sql_query):
+    
+    sql_tokens = tokenize_query(sql_query)
+    
+    # Split the query based on set operators 
+    # i.e., union, intersection, set difference
+    sub_query_tokens = []
+    sub_query_token = []
+    set_operators = []
+    
+    for token in sql_tokens:
+        if token not in ['EXCEPT','INTERSECT','UNION']:
+            sub_query_token.append(token)
+        else:
+            sub_query_tokens.append(sub_query_token)
+            set_operators.append(rel_alg_operators[token])
+            sub_query_token = []
+            
+    sub_query_tokens.append(sub_query_token)
+    
+    relational_algebra = ""
+    
+    for tokens in sub_query_tokens:
+        relational_algebra += generate_sub_expression(tokens)
+        if set_operators != []:
+            relational_algebra += set_operators.pop(0)
+
     return relational_algebra
 
 def generate_equivalent_expressions(relational_algebra):
