@@ -198,6 +198,39 @@ def generate_equivalent_expressions(relational_algebra):
                 
                 exp_list += [new_exp] if new_exp not in exp_list else []
                 
+    # Distribution of Selection operation over set operations
+    for exp in exp_list:
+        match = re.search(r'\(σ\((.+)\)\((.+)\)\) ([∪∩−]) \(σ\((.+)\)\((.+)\)\)',exp)
+        if match:
+            cond1 = match.group(1)
+            cond2 = match.group(4)
+            e1 = match.group(2)
+            e2 = match.group(5)
+            
+            if cond1 == cond2:
+                
+                new_exp = f"σ({cond1})(({e1}) {match.group(3)} ({e2}))"
+                new_exp = exp.replace(match.group(0),new_exp)
+                exp_list += [new_exp] if new_exp not in exp_list else []
+                
+                new_exp = f"(σ({cond1})({e1})) {match.group(3)} ({e2})"
+                new_exp = exp.replace(match.group(0),new_exp)
+                exp_list += [new_exp] if new_exp not in exp_list else []
+        
+        match = re.search(r'\(σ\((.+)\)\((\w+)\)\) ([∪∩−]) \((\w+)\)',exp)
+        if match:
+            cond = match.group(1)
+            e1 = match.group(2)
+            e2 = match.group(4)
+            
+            new_exp = f"σ({cond})(({e1}) ∪ ({e2}))"
+            new_exp = exp.replace(match.group(0),new_exp)
+            exp_list += [new_exp] if new_exp not in exp_list else []
+            
+            new_exp = f"(σ({cond})({e1})) ∪ (σ({cond})({e2}))"
+            new_exp = exp.replace(match.group(0),new_exp)
+            exp_list += [new_exp] if new_exp not in exp_list else []
+        
     return exp_list
 
 __all__ = [
