@@ -100,8 +100,7 @@ def generate_equivalent_expressions(relational_algebra):
     
     # Cascading of σ operator 
     for exp in exp_list:
-        match = re.search(r'σ\((.*⋀.+.*)\)\((\w+)\)', exp)
-        
+        match = re.search(r'σ\((.*⋀.+.*)\)\((.+)\)', exp)
         if match:
             conditions = match.group(1).split('⋀')
             
