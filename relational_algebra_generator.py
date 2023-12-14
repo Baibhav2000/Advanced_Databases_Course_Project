@@ -85,10 +85,13 @@ def generate_relational_algebra(sql_query):
     
     relational_algebra = ""
     
-    for tokens in sub_query_tokens:
-        relational_algebra += f'({generate_sub_expression(tokens)})'
-        if set_operators != []:
-            relational_algebra += f' {set_operators.pop(0)} '
+    if len(sub_query_tokens) == 1:
+        relational_algebra = f'{generate_sub_expression(sub_query_tokens[0])}'
+    else:    
+        for tokens in sub_query_tokens:
+            relational_algebra += f'({generate_sub_expression(tokens)})'
+            if set_operators != []:
+                relational_algebra += f' {set_operators.pop(0)} '
 
     return relational_algebra
 
@@ -166,6 +169,7 @@ def generate_equivalent_expressions(relational_algebra):
         if match:
             new_exp = f"{match.group(2)}⨝({match.group(1)}⋀{match.group(3)}){match.group(4)}"
             
+            new_exp = exp.replace(match.group(0),new_exp)
             exp_list += [new_exp] if new_exp not in exp_list else []
     
     # Commutative property of ∪ and ∩ Operator
